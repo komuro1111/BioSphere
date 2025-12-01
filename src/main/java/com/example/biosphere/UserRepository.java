@@ -1,47 +1,71 @@
 package com.example.biosphere;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 public class UserRepository {
-    // メモリ上でユーザーを保存する簡易的なマップ
-    private static final Map<String, User> users = new HashMap<>();
+    // ユーザーリストをメモリ上で管理（DBの代わり）
+    private static final List<User> users = new ArrayList<>();
 
+    // 静的初期化ブロックでテストユーザーを追加
+    static {
+        // UserIDはシステム上 @test となるように登録します
+        // ログイン時は入力欄に "test" と入れると、内部で "@test" に変換されマッチします
+        users.add(new User("@test", "test", "テストユーザー"));
+    }
+
+    // ユーザー登録
     public static void register(User user) {
-        users.put(user.getUserID(), user);
+        users.add(user);
     }
 
+    // IDでユーザー検索
     public static User findByUserID(String userID) {
-        return users.get(userID);
-    }
-
-    public static boolean exists(String userID) {
-        return users.containsKey(userID);
-    }
-
-    // ユーザー情報の更新（ID変更に対応するため、古いIDで削除して新しいIDで登録し直す）
-    public static void update(String oldUserID, User user) {
-        if (!oldUserID.equals(user.getUserID())) {
-            users.remove(oldUserID);
+        for (User user : users) {
+            if (user.getUserID().equals(userID)) {
+                return user;
+            }
         }
-        users.put(user.getUserID(), user);
+        return null;
     }
 
-    // ニックネームの重複チェック（自分自身は除外）
+    // ID重複チェック
+    public static boolean exists(String userID) {
+        return findByUserID(userID) != null;
+    }
+
+    // ニックネーム重複チェック (自分以外)
     public static boolean isNicknameTaken(String nickname, String currentUserID) {
-        for (User user : users.values()) {
-            if (user.getNickname().equals(nickname) && !user.getUserID().equals(currentUserID)) {
-                return true;
+        for (User user : users) {
+            if (user.getNickname().equals(nickname)) {
+                // currentUserIDがnull（新規登録時）か、別のIDの場合のみtrue
+                if (currentUserID == null || !user.getUserID().equals(currentUserID)) {
+                    return true;
+                }
             }
         }
         return false;
     }
 
-    // ユーザーIDの重複チェック（自分自身は除外）
-    public static boolean isUserIDTaken(String newUserID, String currentUserID) {
-        if (newUserID.equals(currentUserID)) {
-            return false;
+    // ID重複チェック (自分以外 - 更新時用)
+    public static boolean isUserIDTaken(String userID, String currentUserID) {
+        for (User user : users) {
+            if (user.getUserID().equals(userID)) {
+                if (currentUserID == null || !user.getUserID().equals(currentUserID)) {
+                    return true;
+                }
+            }
         }
-        return users.containsKey(newUserID);
+        return false;
+    }
+
+    // ユーザー情報更新
+    public static void update(String currentUserID, User updatedUser) {
+        for (int i = 0; i < users.size(); i++) {
+            if (users.get(i).getUserID().equals(currentUserID)) {
+                users.set(i, updatedUser);
+                return;
+            }
+        }
     }
 }

@@ -14,7 +14,8 @@ public class login extends HttpServlet {
     }
 
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-        String userID = request.getParameter("userID");
+        // フォームから受け取ったIDに@を自動付与
+        String userID = UserValidationUtils.formatUserID(request.getParameter("userID"));
         String pass = request.getParameter("pass");
 
         User user = UserRepository.findByUserID(userID);

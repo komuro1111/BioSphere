@@ -1,18 +1,21 @@
 package com.example.biosphere;
 
 import java.io.*;
-import java.util.regex.Pattern;
+import java.nio.file.Paths;
+// Patternのインポートは不要になります
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.*;
 import jakarta.servlet.annotation.*;
 
 @WebServlet(name = "updateProfileServlet", value = "/update-profile")
+@MultipartConfig(
+    fileSizeThreshold = 1024 * 1024 * 1,
+    maxFileSize = 1024 * 1024 * 10,
+    maxRequestSize = 1024 * 1024 * 15
+)
 public class UpdateProfileServlet extends HttpServlet {
 
-    // ニックネーム: 日本語、英語、数字、20文字以内
-    private static final String NICKNAME_PATTERN = "^[a-zA-Z0-9\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]{1,20}$";
-    // ユーザーID: @で始まり、英数字のみ、合計20文字以内 (例: @user123)
-    private static final String USERID_PATTERN = "^@[a-zA-Z0-9]{1,19}$";
+    // 定数定義を削除
 
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         request.setCharacterEncoding("UTF-8");
@@ -20,30 +23,24 @@ public class UpdateProfileServlet extends HttpServlet {
         User currentUser = (User) session.getAttribute("user");
 
         if (currentUser == null) {
-            response.sendRedirect("index.jsp"); // セッション切れ対応
+            response.sendRedirect("index.jsp");
             return;
         }
 
         String newNickname = request.getParameter("nickname");
-        String newUserID = request.getParameter("userID");
-        String newPassword = request.getParameter("pass");
         String currentUserID = currentUser.getUserID();
 
-        // --- バリデーション ---
-        String error = null;
+        // 共通処理を使用: IDのフォーマット
+        String newUserID = UserValidationUtils.formatUserID(request.getParameter("userID"));
+        
+        String newPassword = request.getParameter("pass");
 
-        // 1. 書式チェック
-        if (newNickname == null || !Pattern.matches(NICKNAME_PATTERN, newNickname)) {
-            error = "ニックネームは日本語・英語・数字で20文字以内で入力してください。";
-        } else if (newUserID == null || !Pattern.matches(USERID_PATTERN, newUserID)) {
-            error = "ユーザーIDは@から始まる半角英数字20文字以内で入力してください。";
-        }
-        // 2. 重複チェック
-        else if (UserRepository.isNicknameTaken(newNickname, currentUserID)) {
-            error = "そのニックネームは既に使用されています。";
-        } else if (UserRepository.isUserIDTaken(newUserID, currentUserID)) {
-            error = "そのユーザーIDは既に使用されています。";
-        }
+        // 背景設定の取得
+        String backgroundType = request.getParameter("backgroundType");
+        String backgroundColor = request.getParameter("backgroundColor");
+
+        // 共通処理を使用: バリデーション (パスワード引数を追加)
+        String error = UserValidationUtils.validate(newNickname, newUserID, newPassword, currentUserID);
 
         if (error != null) {
             // エラーがある場合、設定画面を開いたままエラーを表示
@@ -53,12 +50,43 @@ public class UpdateProfileServlet extends HttpServlet {
         }
 
         // --- 更新処理 ---
-        currentUser.setNickname(newNickname);
-        currentUser.setUserID(newUserID);
 
         // パスワードが入力されている場合のみ更新（空欄なら変更なし）
         if (newPassword != null && !newPassword.isEmpty()) {
             currentUser.setPassword(newPassword);
+        }
+
+        // 背景設定の更新処理
+        if (backgroundType != null) {
+            currentUser.setBackgroundType(backgroundType);
+
+            if ("color".equals(backgroundType)) {
+                if (backgroundColor != null) {
+                    currentUser.setBackgroundColor(backgroundColor);
+                }
+            } else if ("image".equals(backgroundType)) {
+                try {
+                    Part filePart = request.getPart("backgroundImage");
+                    if (filePart != null && filePart.getSize() > 0) {
+                        String fileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString();
+                        // ファイル名の衝突を防ぐためにタイムスタンプを付与
+                        String safeFileName = System.currentTimeMillis() + "_" + fileName;
+
+                        // 保存先ディレクトリ (webapp/uploads)
+                        String uploadPath = getServletContext().getRealPath("") + File.separator + "uploads";
+                        File uploadDir = new File(uploadPath);
+                        if (!uploadDir.exists()) {
+                            uploadDir.mkdir();
+                        }
+
+                        filePart.write(uploadPath + File.separator + safeFileName);
+                        currentUser.setBackgroundImagePath(safeFileName);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    // 必要であればログ出力など
+                }
+            }
         }
 
         // リポジトリ更新
