@@ -6,6 +6,18 @@
     String registerError = (String) request.getAttribute("registerError");
     // 設定画面のエラー取得
     String settingsError = (String) request.getAttribute("settingsError");
+
+    // 背景スタイルの決定
+    String bodyStyle = "background-color: #1a1a1a;"; // デフォルト
+    if (currentUser != null) {
+        if ("image".equals(currentUser.getBackgroundType()) && currentUser.getBackgroundImagePath() != null && !currentUser.getBackgroundImagePath().isEmpty()) {
+            // 画像の場合はパスを指定
+            bodyStyle = "background-image: url('" + request.getContextPath() + "/uploads/" + currentUser.getBackgroundImagePath() + "'); background-size: cover; background-attachment: fixed; background-position: center;";
+        } else if ("color".equals(currentUser.getBackgroundType()) && currentUser.getBackgroundColor() != null) {
+            // 単色の場合は色を指定
+            bodyStyle = "background-color: " + currentUser.getBackgroundColor() + ";";
+        }
+    }
 %>
 <!DOCTYPE html>
 <html lang="ja">
@@ -35,8 +47,9 @@
     <style>
         body {
             font-family: 'Noto Sans JP', sans-serif;
-            background-color: #1a1a1a;
+            /* background-color: #1a1a1a;  <-- ここを削除または上書き */
             color: #ffffff;
+            transition: background-color 0.5s ease; /* 色変更時のアニメーション */
         }
         /* チェックボックスのトグルデザイン用 */
         .toggle-checkbox:checked {
@@ -46,17 +59,24 @@
         .toggle-checkbox:checked + .toggle-label {
             background-color: #84cc16;
         }
+
+
+
     </style>
 </head>
-<body>
+<%-- bodyタグにスタイルを適用 --%>
+<body style="<%= bodyStyle %>" class="flex flex-col min-h-screen"><%-- flex Flexboxコンテナにする　flex-col　縦方向に並べる　min-h-screen　screen	最小高さを画面全体に設定--%>
 
 <!-- ヘッダーエリア -->
 <header class="w-full p-4 bg-bio-card shadow-lg flex justify-between items-center border-b border-gray-700">
     <div class="flex items-center gap-3 ml-4">
-        <i class="fa-solid fa-dna text-bio-accent text-3xl"></i>
-        <div class="text-2xl font-bold tracking-wide text-white">
-            Bio-Sphere <span class="text-xs text-bio-accent font-normal block -mt-1">AI Biological Database</span>
-        </div>
+        <a href="#" onclick="resetHome()" class="flex items-center gap-2 group cursor-pointer">   <!-- homeに戻る関数後で作る -->
+            <i class="fa-solid fa-earth-asia text-3xl text-bio-accent group-hover:rotate-12 transition"></i>
+            <div class="flex flex-col">
+                <span class="text-2xl font-bold tracking-wider">Bio-Sphere</span>
+                <span class="text-xs text-gray-400">生物系総合ナレッジベース</span>
+            </div>
+        </a>
     </div>
 
     <div class="flex gap-4 mr-4">
@@ -88,29 +108,12 @@
         </div>
         <% } %>
     </div>
+
 </header>
 
 <!-- メインコンテンツ -->
-<main class="container mx-auto mt-10 p-6 text-center">
-    <h1 class="text-4xl font-bold mb-4 text-white">Welcome to Bio-Sphere</h1>
-    <p class="text-gray-400 mb-12">AIを活用した次世代の生物情報データベースへようこそ。</p>
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-left max-w-5xl mx-auto">
-        <div class="bg-bio-card p-6 rounded-lg border border-gray-700 hover:border-bio-accent transition duration-300 shadow-lg">
-            <i class="fa-solid fa-magnifying-glass text-bio-accent text-2xl mb-3"></i>
-            <h3 class="text-xl font-bold mb-2 text-white">Smart Search</h3>
-            <p class="text-sm text-gray-400">AIによる自然言語処理で、曖昧な条件からでも目的の生物種を特定します。</p>
-        </div>
-        <div class="bg-bio-card p-6 rounded-lg border border-gray-700 hover:border-ai-sparkle transition duration-300 shadow-lg">
-            <i class="fa-solid fa-brain text-ai-sparkle text-2xl mb-3"></i>
-            <h3 class="text-xl font-bold mb-2 text-white">Deep Analysis</h3>
-            <p class="text-sm text-gray-400">生態系のシミュレーションや遺伝子情報の解析をサポートします。</p>
-        </div>
-        <div class="bg-bio-card p-6 rounded-lg border border-gray-700 hover:border-blue-500 transition duration-300 shadow-lg">
-            <i class="fa-solid fa-share-nodes text-blue-500 text-2xl mb-3"></i>
-            <h3 class="text-xl font-bold mb-2 text-white">Collaborate</h3>
-            <p class="text-sm text-gray-400">世界中の研究者とデータを共有し、知見を広げましょう。</p>
-        </div>
-    </div>
+<main class="container mx-auto mt-10 p-6 text-center **flex-grow**"> <!-- flex-grow   <body>内で残っているすべての空きスペースをこの要素（メインコンテンツ）が占有するようにし、<footer>を強制的に最下部まで押し出す-->
+
 </main>
 
 <!-- ログインモーダル -->
@@ -129,15 +132,20 @@
         <form action="login" method="post" class="space-y-6">
             <div>
                 <label class="block text-gray-400 text-xs font-bold mb-2">ユーザーID</label>
-                <input type="text" name="userID"
-                       class="w-full bg-[#262626] text-white border border-[#333333] rounded px-4 py-3 focus:outline-none focus:border-bio-accent focus:ring-1 focus:ring-bio-accent transition-colors placeholder-gray-600"
-                       placeholder="demouser">
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                        <span class="text-gray-500 font-bold">@</span>
+                    </div>
+                    <input type="text" name="userID"
+                               class="w-full bg-[#262626] text-white border border-[#333333] rounded pl-10 pr-4 py-3 focus:outline-none focus:border-bio-accent focus:ring-1 focus:ring-bio-accent transition-colors placeholder-gray-600"
+                               placeholder="demouser">
+                </div>
             </div>
             <div>
                 <label class="block text-gray-400 text-xs font-bold mb-2">パスワード</label>
                 <input type="password" name="pass"
-                       class="w-full bg-[#262626] text-white border border-[#333333] rounded px-4 py-3 focus:outline-none focus:border-bio-accent focus:ring-1 focus:ring-bio-accent transition-colors placeholder-gray-600"
-                       placeholder="••••••••">
+                           class="w-full bg-[#262626] text-white border border-[#333333] rounded px-4 py-3 focus:outline-none focus:border-bio-accent focus:ring-1 focus:ring-bio-accent transition-colors placeholder-gray-600"
+                           placeholder="••••••••">
             </div>
             <button type="submit"
                     class="w-full bg-bio-accent hover:bg-lime-500 text-bio-dark font-bold py-3 rounded transition-all transform hover:scale-[1.01] active:scale-[0.99] mt-2">
@@ -171,10 +179,17 @@
                 <input type="text" name="nickname" required
                        class="w-full bg-[#262626] text-white border border-[#333333] rounded px-4 py-3 focus:outline-none focus:border-bio-accent focus:ring-1 focus:ring-bio-accent transition-colors placeholder-gray-600">
             </div>
+            <!-- ユーザーID入力欄の変更 (新規登録) -->
             <div>
-                <label class="block text-gray-400 text-xs font-bold mb-2">ユーザーID</label>
-                <input type="text" name="userID" required
-                       class="w-full bg-[#262626] text-white border border-[#333333] rounded px-4 py-3 focus:outline-none focus:border-bio-accent focus:ring-1 focus:ring-bio-accent transition-colors placeholder-gray-600">
+                <label class="block text-gray-400 text-xs font-bold mb-2">ユーザーID (半角英数字)</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                        <span class="text-gray-500 font-bold">@</span>
+                    </div>
+                    <input type="text" name="userID" required
+                           class="w-full bg-[#262626] text-white border border-[#333333] rounded pl-10 pr-4 py-3 focus:outline-none focus:border-bio-accent focus:ring-1 focus:ring-bio-accent transition-colors placeholder-gray-600"
+                           placeholder="user123">
+                </div>
             </div>
             <div>
                 <label class="block text-gray-400 text-xs font-bold mb-2">パスワード</label>
@@ -211,7 +226,8 @@
         <% } %>
 
         <% if (currentUser != null) { %>
-        <form action="update-profile" method="post" class="space-y-6">
+        <!-- enctypeを追加してファイルアップロードに対応 -->
+        <form action="update-profile" method="post" enctype="multipart/form-data" class="space-y-6">
             <!-- ニックネーム -->
             <div>
                 <label class="block text-gray-400 text-xs font-bold mb-2">ニックネーム (日本語・英語・数字 20文字以内)</label>
@@ -219,19 +235,22 @@
                        class="w-full bg-[#262626] text-white border border-[#333333] rounded px-4 py-3 focus:outline-none focus:border-bio-accent focus:ring-1 focus:ring-bio-accent transition-colors">
             </div>
 
-            <!-- ユーザーID -->
+            <!-- ユーザーID入力欄の変更 (設定変更) -->
             <div>
-                <label class="block text-gray-400 text-xs font-bold mb-2">ユーザーID (@から始まる英数字 20文字以内)</label>
-                <input type="text" name="userID" value="<%= currentUser.getUserID() %>" required
-                       class="w-full bg-[#262626] text-white border border-[#333333] rounded px-4 py-3 focus:outline-none focus:border-bio-accent focus:ring-1 focus:ring-bio-accent transition-colors">
-            </div>
-
-            <!-- フォロー通知 (UIのみ実装) -->
-            <div class="flex items-center justify-between py-2 border-b border-gray-800">
-                <span class="text-gray-400 text-sm font-bold">フォロー通知</span>
-                <div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
-                    <input type="checkbox" name="toggle" id="toggle" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"/>
-                    <label for="toggle" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-600 cursor-pointer"></label>
+                <label class="block text-gray-400 text-xs font-bold mb-2">ユーザーID (半角英数字 20文字以内)</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                        <span class="text-gray-500 font-bold">@</span>
+                    </div>
+                    <%
+                        // 既存のIDから@を取り除いて表示用にする処理
+                        String displayID = currentUser.getUserID();
+                        if (displayID != null && displayID.startsWith("@")) {
+                            displayID = displayID.substring(1);
+                        }
+                    %>
+                    <input type="text" name="userID" value="<%= displayID %>" required
+                           class="w-full bg-[#262626] text-white border border-[#333333] rounded pl-10 pr-4 py-3 focus:outline-none focus:border-bio-accent focus:ring-1 focus:ring-bio-accent transition-colors">
                 </div>
             </div>
 
@@ -243,6 +262,58 @@
                        placeholder="変更しない場合は空欄">
             </div>
 
+            <!-- 背景設定エリアの追加 -->
+            <div class="border-t border-gray-700 pt-4 mt-2">
+                <h3 class="text-sm font-bold text-gray-300 mb-3">壁紙 (背景設定)</h3>
+                
+                <!-- タイプ選択 -->
+                <div class="flex gap-6 mb-4">
+                    <label class="flex items-center gap-2 cursor-pointer group">
+                        <input type="radio" name="backgroundType" value="color" 
+                               <%= (currentUser.getBackgroundType() == null || "color".equals(currentUser.getBackgroundType())) ? "checked" : "" %>
+                               onclick="toggleBackgroundSettings('color')"
+                               class="text-bio-accent focus:ring-bio-accent bg-[#262626] border-gray-600">
+                        <span class="text-sm text-gray-400 group-hover:text-white transition-colors">単色カラー</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer group">
+                        <input type="radio" name="backgroundType" value="image" 
+                               <%= "image".equals(currentUser.getBackgroundType()) ? "checked" : "" %>
+                               onclick="toggleBackgroundSettings('image')"
+                               class="text-bio-accent focus:ring-bio-accent bg-[#262626] border-gray-600">
+                        <span class="text-sm text-gray-400 group-hover:text-white transition-colors">画像アップロード</span>
+                    </label>
+                </div>
+
+                <!-- カラー選択パレット -->
+                <div id="colorSettings" class="<%= "image".equals(currentUser.getBackgroundType()) ? "hidden" : "" %>">
+                    <div class="flex gap-3 flex-wrap">
+                        <% 
+                        String[] presetColors = {"#1a1a1a", "#0f172a", "#14532d", "#312e81", "#4c0519", "#000000"}; 
+                        for(String c : presetColors) { 
+                        %>
+                        <label class="cursor-pointer relative w-8 h-8 rounded-full border-2 border-gray-600 hover:border-white transition-colors shadow-md" style="background-color: <%= c %>;">
+                            <input type="radio" name="backgroundColor" value="<%= c %>" class="opacity-0 absolute inset-0 w-full h-full cursor-pointer" 
+                                   <%= c.equals(currentUser.getBackgroundColor()) ? "checked" : "" %>>
+                            <!-- 選択時にチェックマークを表示するなどの装飾が可能 -->
+                        </label>
+                        <% } %>
+                    </div>
+                </div>
+
+                <!-- 画像アップロードフォーム -->
+                <div id="imageSettings" class="<%= "image".equals(currentUser.getBackgroundType()) ? "" : "hidden" %>">
+                    <input type="file" name="backgroundImage" accept="image/*" class="block w-full text-xs text-gray-400
+                        file:mr-4 file:py-2 file:px-4
+                        file:rounded-full file:border-0
+                        file:text-xs file:font-semibold
+                        file:bg-[#333] file:text-white
+                        hover:file:bg-bio-accent hover:file:text-bio-dark
+                        cursor-pointer file:cursor-pointer file:transition-colors
+                    "/>
+                    <p class="text-xs text-gray-500 mt-2">※ jpeg, png, gif 形式のみ</p>
+                </div>
+            </div>
+
             <button type="submit"
                     class="w-full bg-bio-accent hover:bg-lime-500 text-bio-dark font-bold py-3 rounded transition-all transform hover:scale-[1.01] active:scale-[0.99] mt-2">
                 設定を保存
@@ -252,6 +323,16 @@
     </div>
 </div>
 
+<footer class="bg-black text-gray-400 py-12 border-t border-gray-800 mt-auto">
+    <div class="container mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+        <div class="col-span-1 md:col-span-1"><h3 class="text-white text-lg font-bold mb-4 flex items-center gap-2"><i class="fa-solid fa-earth-asia text-bio-accent"></i> Bio-Sphere</h3><p class="text-sm leading-relaxed mb-4">地球上のあらゆる生命の記録を集積するナレッジベース。</p></div>
+        <div><h4 class="text-white font-bold mb-4 border-b border-gray-700 pb-2 inline-block">コンテンツ</h4><ul class="space-y-2 text-sm"><li><a href="#" class="hover:text-bio-accent">最新ニュース</a></li><li><a href="#" class="hover:text-bio-accent">生物図鑑</a></li><li><a href="#" class="hover:text-bio-accent">論文検索</a></li></ul></div>
+        <div><h4 class="text-white font-bold mb-4 border-b border-gray-700 pb-2 inline-block">コミュニティ</h4><ul class="space-y-2 text-sm"><li><a href="#" class="hover:text-bio-accent">新規登録</a></li><li><a href="#" class="hover:text-bio-accent">お問い合わせ</a></li></ul></div>
+        <div><h4 class="text-white font-bold mb-4 border-b border-gray-700 pb-2 inline-block">運営</h4><div class="flex gap-4"><a href="#" class="text-xl hover:text-white"><i class="fa-brands fa-x-twitter"></i></a><a href="#" class="text-xl hover:text-white"><i class="fa-brands fa-instagram"></i></a></div></div>
+    </div>
+    <div class="border-t border-gray-800 pt-8 text-center text-xs text-gray-500"><p>&copy; 2024 Bio-Sphere Project.</p></div>
+</footer>
+
 <script>
     function openModal(modalId) {
         document.getElementById(modalId).classList.remove('hidden');
@@ -259,6 +340,21 @@
     function closeModal(modalId) {
         document.getElementById(modalId).classList.add('hidden');
     }
+    
+    // 背景設定の切り替え用スクリプト
+    function toggleBackgroundSettings(type) {
+        const colorSettings = document.getElementById('colorSettings');
+        const imageSettings = document.getElementById('imageSettings');
+        
+        if (type === 'color') {
+            colorSettings.classList.remove('hidden');
+            imageSettings.classList.add('hidden');
+        } else {
+            colorSettings.classList.add('hidden');
+            imageSettings.classList.remove('hidden');
+        }
+    }
+
     function switchToRegister() {
         closeModal('loginModal');
         openModal('registerModal');
