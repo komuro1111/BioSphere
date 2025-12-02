@@ -24,7 +24,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bio-Sphere | AI搭載 生物系総合情報データベース</title>
+    <title>Bio-Sphere | AI搭載 生物総合情報データベース</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -108,8 +108,36 @@
         </div>
         <% } %>
     </div>
-
 </header>
+
+<nav class="w-full bg-[#1e1e1e] shadow-inner border-b border-t border-gray-700">
+    <div class="container mx-auto px-4 py-3 flex space-x-8 justify-center items-center">
+        <a href="#" class="font-bold text-base text-bio-accent border-b-2 border-bio-accent pb-1 transition-colors **text-center**" onclick="selectCategory(this, 'all')">
+            最新ニュース(全て)
+        </a>
+        <a href="#" class="text-gray-400 font-bold text-base hover:text-bio-accent transition-colors pb-1 **text-center**" onclick="selectCategory(this, 'animal')">
+            動物
+        </a>
+        <a href="#" class="text-gray-400 font-bold text-base hover:text-bio-accent transition-colors pb-1 **text-center**" onclick="selectCategory(this, 'reptile')">
+            爬虫類
+        </a>
+        <a href="#" class="text-gray-400 font-bold text-base hover:text-bio-accent transition-colors pb-1 **text-center**" onclick="selectCategory(this, 'aquatic')">
+            水生生物
+        </a>
+        <a href="#" class="text-gray-400 font-bold text-base hover:text-bio-accent transition-colors pb-1 **text-center**" onclick="selectCategory(this, 'plant')">
+            植物
+        </a>
+        <a href="#" class="text-gray-400 font-bold text-base hover:text-bio-accent transition-colors pb-1 **text-center**" onclick="selectCategory(this, 'fossil')">
+            古生物・化石
+        </a>
+        <a href="#" class="text-gray-400 font-bold text-base hover:text-bio-accent transition-colors pb-1 **text-center**" onclick="selectCategory(this, 'insect')">
+            昆虫
+        </a>
+        <a href="#" class="text-gray-400 font-bold text-base hover:text-bio-accent transition-colors pb-1 **text-center**" onclick="selectCategory(this, 'microbe')">
+            微生物
+        </a>
+    </div>
+</nav>
 
 <!-- メインコンテンツ -->
 <main class="container mx-auto mt-10 p-6 text-center **flex-grow**"> <!-- flex-grow   <body>内で残っているすべての空きスペースをこの要素（メインコンテンツ）が占有するようにし、<footer>を強制的に最下部まで押し出す-->
@@ -137,15 +165,15 @@
                         <span class="text-gray-500 font-bold">@</span>
                     </div>
                     <input type="text" name="userID"
-                               class="w-full bg-[#262626] text-white border border-[#333333] rounded pl-10 pr-4 py-3 focus:outline-none focus:border-bio-accent focus:ring-1 focus:ring-bio-accent transition-colors placeholder-gray-600"
-                               placeholder="demouser">
+                           class="w-full bg-[#262626] text-white border border-[#333333] rounded pl-10 pr-4 py-3 focus:outline-none focus:border-bio-accent focus:ring-1 focus:ring-bio-accent transition-colors placeholder-gray-600"
+                           placeholder="demouser">
                 </div>
             </div>
             <div>
                 <label class="block text-gray-400 text-xs font-bold mb-2">パスワード</label>
                 <input type="password" name="pass"
-                           class="w-full bg-[#262626] text-white border border-[#333333] rounded px-4 py-3 focus:outline-none focus:border-bio-accent focus:ring-1 focus:ring-bio-accent transition-colors placeholder-gray-600"
-                           placeholder="••••••••">
+                       class="w-full bg-[#262626] text-white border border-[#333333] rounded px-4 py-3 focus:outline-none focus:border-bio-accent focus:ring-1 focus:ring-bio-accent transition-colors placeholder-gray-600"
+                       placeholder="••••••••">
             </div>
             <button type="submit"
                     class="w-full bg-bio-accent hover:bg-lime-500 text-bio-dark font-bold py-3 rounded transition-all transform hover:scale-[1.01] active:scale-[0.99] mt-2">
@@ -265,19 +293,19 @@
             <!-- 背景設定エリアの追加 -->
             <div class="border-t border-gray-700 pt-4 mt-2">
                 <h3 class="text-sm font-bold text-gray-300 mb-3">壁紙 (背景設定)</h3>
-                
+
                 <!-- タイプ選択 -->
                 <div class="flex gap-6 mb-4">
                     <label class="flex items-center gap-2 cursor-pointer group">
-                        <input type="radio" name="backgroundType" value="color" 
-                               <%= (currentUser.getBackgroundType() == null || "color".equals(currentUser.getBackgroundType())) ? "checked" : "" %>
+                        <input type="radio" name="backgroundType" value="color"
+                            <%= (currentUser.getBackgroundType() == null || "color".equals(currentUser.getBackgroundType())) ? "checked" : "" %>
                                onclick="toggleBackgroundSettings('color')"
                                class="text-bio-accent focus:ring-bio-accent bg-[#262626] border-gray-600">
                         <span class="text-sm text-gray-400 group-hover:text-white transition-colors">単色カラー</span>
                     </label>
                     <label class="flex items-center gap-2 cursor-pointer group">
-                        <input type="radio" name="backgroundType" value="image" 
-                               <%= "image".equals(currentUser.getBackgroundType()) ? "checked" : "" %>
+                        <input type="radio" name="backgroundType" value="image"
+                            <%= "image".equals(currentUser.getBackgroundType()) ? "checked" : "" %>
                                onclick="toggleBackgroundSettings('image')"
                                class="text-bio-accent focus:ring-bio-accent bg-[#262626] border-gray-600">
                         <span class="text-sm text-gray-400 group-hover:text-white transition-colors">画像アップロード</span>
@@ -287,13 +315,13 @@
                 <!-- カラー選択パレット -->
                 <div id="colorSettings" class="<%= "image".equals(currentUser.getBackgroundType()) ? "hidden" : "" %>">
                     <div class="flex gap-3 flex-wrap">
-                        <% 
-                        String[] presetColors = {"#1a1a1a", "#0f172a", "#14532d", "#312e81", "#4c0519", "#000000"}; 
-                        for(String c : presetColors) { 
+                        <%
+                            String[] presetColors = {"#1a1a1a", "#0f172a", "#14532d", "#312e81", "#4c0519", "#000000"};
+                            for(String c : presetColors) {
                         %>
                         <label class="cursor-pointer relative w-8 h-8 rounded-full border-2 border-gray-600 hover:border-white transition-colors shadow-md" style="background-color: <%= c %>;">
-                            <input type="radio" name="backgroundColor" value="<%= c %>" class="opacity-0 absolute inset-0 w-full h-full cursor-pointer" 
-                                   <%= c.equals(currentUser.getBackgroundColor()) ? "checked" : "" %>>
+                            <input type="radio" name="backgroundColor" value="<%= c %>" class="opacity-0 absolute inset-0 w-full h-full cursor-pointer"
+                                <%= c.equals(currentUser.getBackgroundColor()) ? "checked" : "" %>>
                             <!-- 選択時にチェックマークを表示するなどの装飾が可能 -->
                         </label>
                         <% } %>
@@ -340,12 +368,12 @@
     function closeModal(modalId) {
         document.getElementById(modalId).classList.add('hidden');
     }
-    
+
     // 背景設定の切り替え用スクリプト
     function toggleBackgroundSettings(type) {
         const colorSettings = document.getElementById('colorSettings');
         const imageSettings = document.getElementById('imageSettings');
-        
+
         if (type === 'color') {
             colorSettings.classList.remove('hidden');
             imageSettings.classList.add('hidden');
@@ -383,6 +411,26 @@
             closeModal('settingsModal');
         }
     });
+
+    //footer 下
+    function selectCategory(element, category) {
+        // 1. 全てのカテゴリリンクからアクティブなスタイルを削除
+        document.querySelectorAll('nav .container a').forEach(link => {
+            // アクティブ時のスタイルを削除
+            link.classList.remove('text-bio-accent', 'border-b-2', 'border-bio-accent');
+            // 非アクティブ時のスタイルを追加 (色と太字は維持)
+            link.classList.add('text-gray-400');
+        });
+
+        // 2. 選択された要素にアクティブなスタイルを設定
+        element.classList.remove('text-gray-400');
+        // 色と下線のみを適用 (太字は既にHTML側で適用されている)
+        element.classList.add('text-bio-accent', 'border-b-2', 'border-bio-accent');
+
+        console.log(`カテゴリが選択されました: ${category}`);
+
+        return false;
+    }
 </script>
 
 </body>
