@@ -9,7 +9,7 @@ public class User {
     private String backgroundType; // "color" または "image"
     private String backgroundColor; // カラーコード (例: #000000)
     private String backgroundImagePath; // 画像のパス
-    
+
 
     public User(String userID,String password,String nickname) {
         this.userID = userID;

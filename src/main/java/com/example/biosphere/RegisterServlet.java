@@ -17,7 +17,7 @@ public class RegisterServlet extends HttpServlet {
         request.setCharacterEncoding("UTF-8");
 
         String nickname = request.getParameter("nickname");
-        
+
         // 共通処理を使用
         String userID = UserValidationUtils.formatUserID(request.getParameter("userID"));
         String pass = request.getParameter("pass");
@@ -26,9 +26,9 @@ public class RegisterServlet extends HttpServlet {
         // 新規登録なのでパスワードは必須。空チェックもUtils側あるいはここで行う必要がありますが
         // Utils.validatePasswordは空を許容する設定にしたため、ここで必須チェックを追加しても良いでしょう
         if (pass == null || pass.isEmpty()) {
-             request.setAttribute("registerError", "パスワードを入力してください。");
-             request.getRequestDispatcher("/index.jsp").forward(request, response);
-             return;
+            request.setAttribute("registerError", "パスワードを入力してください。");
+            request.getRequestDispatcher("/index.jsp").forward(request, response);
+            return;
         }
 
         String error = UserValidationUtils.validate(nickname, userID, pass, null);

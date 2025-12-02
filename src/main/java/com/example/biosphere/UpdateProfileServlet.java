@@ -9,9 +9,9 @@ import jakarta.servlet.annotation.*;
 
 @WebServlet(name = "updateProfileServlet", value = "/update-profile")
 @MultipartConfig(
-    fileSizeThreshold = 1024 * 1024 * 1,
-    maxFileSize = 1024 * 1024 * 10,
-    maxRequestSize = 1024 * 1024 * 15
+        fileSizeThreshold = 1024 * 1024 * 1,
+        maxFileSize = 1024 * 1024 * 10,
+        maxRequestSize = 1024 * 1024 * 15
 )
 public class UpdateProfileServlet extends HttpServlet {
 
@@ -32,7 +32,7 @@ public class UpdateProfileServlet extends HttpServlet {
 
         // 共通処理を使用: IDのフォーマット
         String newUserID = UserValidationUtils.formatUserID(request.getParameter("userID"));
-        
+
         String newPassword = request.getParameter("pass");
 
         // 背景設定の取得
