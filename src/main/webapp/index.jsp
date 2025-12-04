@@ -1,4 +1,4 @@
-<%@ page import="com.example.biosphere.User" %>
+<%@ page import="com.example.biosphere.model.User" %>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%
     User currentUser = (User) session.getAttribute("user");
@@ -60,8 +60,6 @@
             background-color: #84cc16;
         }
 
-
-
     </style>
 </head>
 <%-- bodyタグにスタイルを適用 --%>
@@ -108,6 +106,11 @@
         </div>
         <% } %>
     </div>
+
+    <a href="create-post" class="text-bio-accent hover:text-white mr-4">
+        <i class="fa-solid fa-pen"></i> 投稿する
+    </a>
+
 </header>
 
 <nav class="w-full bg-[#1e1e1e] shadow-inner border-b border-t border-gray-700">
@@ -295,21 +298,37 @@
                 <h3 class="text-sm font-bold text-gray-300 mb-3">壁紙 (背景設定)</h3>
 
                 <!-- タイプ選択 -->
-                <div class="flex gap-6 mb-4">
-                    <label class="flex items-center gap-2 cursor-pointer group">
-                        <input type="radio" name="backgroundType" value="color"
-                            <%= (currentUser.getBackgroundType() == null || "color".equals(currentUser.getBackgroundType())) ? "checked" : "" %>
-                               onclick="toggleBackgroundSettings('color')"
-                               class="text-bio-accent focus:ring-bio-accent bg-[#262626] border-gray-600">
-                        <span class="text-sm text-gray-400 group-hover:text-white transition-colors">単色カラー</span>
-                    </label>
-                    <label class="flex items-center gap-2 cursor-pointer group">
-                        <input type="radio" name="backgroundType" value="image"
-                            <%= "image".equals(currentUser.getBackgroundType()) ? "checked" : "" %>
-                               onclick="toggleBackgroundSettings('image')"
-                               class="text-bio-accent focus:ring-bio-accent bg-[#262626] border-gray-600">
-                        <span class="text-sm text-gray-400 group-hover:text-white transition-colors">画像アップロード</span>
-                    </label>
+                <div class="flex gap-4 mr-4">
+                    <% if (currentUser == null) { %>
+                    <button onclick="openModal('loginModal')" class="group relative px-6 py-2 font-bold text-bio-dark bg-bio-accent rounded-full overflow-hidden transition-all hover:scale-105 active:scale-95 hover:bg-lime-400 cursor-pointer">
+                <span class="relative z-10 flex items-center gap-2">
+                    <i class="fa-solid fa-right-to-bracket"></i>
+                    ログイン / 新規登録
+                </span>
+                    </button>
+                    <% } else { %>
+                    <div class="flex items-center">
+
+                        <a href="create-post" class="flex items-center gap-2 px-4 py-2 bg-bio-accent text-bio-dark font-bold rounded-full hover:bg-lime-400 transition-all mr-6 shadow-lg hover:scale-105">
+                            <i class="fa-solid fa-pen-nib"></i>
+                            <span class="hidden md:inline">投稿する</span>
+                        </a>
+                        <button onclick="openModal('settingsModal')" class="text-gray-400 hover:text-white transition-colors mr-6" title="設定">
+                            <i class="fa-solid fa-gear text-xl"></i>
+                        </button>
+
+                        <div class="flex items-center gap-3 mr-6">
+                            <div class="w-10 h-10 rounded-full bg-[#3f3f46] flex items-center justify-center text-gray-300">
+                                <i class="fa-solid fa-user text-lg"></i>
+                            </div>
+                            <span class="text-bio-accent font-bold text-xl"><%= currentUser.getNickname() %></span>
+                        </div>
+
+                        <a href="logout" class="px-5 py-1.5 border border-gray-600 rounded-md text-gray-300 hover:text-white hover:border-gray-400 text-sm transition-colors">
+                            ログアウト
+                        </a>
+                    </div>
+                    <% } %>
                 </div>
 
                 <!-- カラー選択パレット -->
